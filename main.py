@@ -15,6 +15,8 @@ def main():
                 print("out of bounds")
                 pass #TODO: set cursor into position   
             pyautogui.click()
+            pyautogui.PAUSE = numpy.random.normal(0.35, 0.05)
+            pyautogui.click()
             numAlchs -= 1
             setNextPauseInterval()
             
@@ -41,7 +43,7 @@ def takeInput():
 
 
 def setNextPauseInterval():
-    pyautogui.PAUSE = numpy.random.normal(GAME_TICK_INTERVAL*5, 0.5)
+    pyautogui.PAUSE = numpy.random.normal(GAME_TICK_INTERVAL*4.5, 0.25)
 
 def cls():
     os.system('cls' if os.name=='nt' else 'clear')

@@ -8,13 +8,11 @@ print(pyautogui.size())
 
 def main():
     numAlchs, topLeftBounds, bottomRightBounds = takeInput()
-    topRightBounds = (bottomRightBounds[0], topLeftBounds[1])
-    bottomLeftBounds = (topLeftBounds[0], bottomRightBounds[1])
-    
-
+    print numAlchs, topLeftBounds, bottomRightBounds
     try:
         while numAlchs > 0:
-            if not checkIfCursorNotOnAlch:
+            if not isCursorOnAlch(topLeftBounds, bottomRightBounds):
+                print("out of bounds")
                 pass #TODO: set cursor into position   
             pyautogui.click()
             numAlchs -= 1
@@ -24,20 +22,26 @@ def main():
     except KeyboardInterrupt:
         print("/nDone")
 
-def checkIfCursorNotOnAlch(topLeftBounds, bottomRightBounds):
+def isCursorOnAlch(topLeftBounds, bottomRightBounds):
     currPos = pyautogui.position()
-    return(currPos[0] > topLeftBounds[0] and currPos[0] < bottomRightBounds[0] and currPos[1] > topLeftBounds[1] and currPos[1] < bottomRightBounds[1])
+    temp = (currPos[0] > topLeftBounds[0] and currPos[0] < bottomRightBounds[0] and currPos[1] > topLeftBounds[1] and currPos[1] < bottomRightBounds[1])
+    print temp
+    return temp
 
 def takeInput():
     numAlchs = input("1.) enter number of alchs: ")
-    topLeftCoordinates = input("2.) place cursor on approximate TOP LEFT of alch icon\nmake sure that you can still cast high alch then press ENTER")
-    bottomRightCoordinates = input("3.) place cursor on approximate BOTTOM RIGHT of alch icon\nmake sure that you can still cast high alch then press ENTER")
+    raw_input("2.) place cursor on approximate TOP LEFT of alch icon\nmake sure that you can still cast high alch then press ENTER")
+    topLeftCoordinates = pyautogui.position()
+    print("top left: ", str(topLeftCoordinates))
+    raw_input("3.) place cursor on approximate BOTTOM RIGHT of alch icon\nmake sure that you can still cast high alch then press ENTER")
+    bottomRightCoordinates = pyautogui.position()
+    print("bottom right: ", str(bottomRightCoordinates))
     return (numAlchs, topLeftCoordinates, bottomRightCoordinates)
 
 
 def setNextPauseInterval():
     pyautogui.PAUSE = numpy.random.normal(GAME_TICK_INTERVAL*5, 0.5)
-    print(pyautogui.PAUSE)
+    
 
 if __name__ == "__main__":
     main()

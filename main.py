@@ -18,14 +18,14 @@ def main():
     Done = False
     while not Done:
         try:
-            alchingLoop(numAlchs, numAlchsRemaining, topLeftBounds, bottomRightBounds)
-            print("Done!, Alched about " + numAlchs + " items")
+            Done = alchingLoop(numAlchs, numAlchsRemaining, topLeftBounds, bottomRightBounds)
         except KeyboardInterrupt:
             print("Done")
         except pyautogui.FailSafeException:  # move to top left corner
             cls()
             print("\r", end='', flush=True)
             input("Execution Paused, Press ENTER to resume")
+    exit(0)
 
 def alchingLoop(numAlchs, numAlchsRemaining, topLeftBounds, bottomRightBounds):
     while numAlchsRemaining > 0:
@@ -41,8 +41,8 @@ def alchingLoop(numAlchs, numAlchsRemaining, topLeftBounds, bottomRightBounds):
             print("\r", end='', flush=True)
         else:
             numAlchsRemaining = castAlch(numAlchsRemaining, numAlchs)
-    print("Done!, Alched about " + numAlchs + " items")
-
+    print("Done!, Alched " + str(numAlchs) + " items")
+    return True
 
 def isCursorOnAlchBounds(topLeftBounds, bottomRightBounds):
     currPos = pyautogui.position()

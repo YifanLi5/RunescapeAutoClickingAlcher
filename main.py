@@ -5,6 +5,8 @@ import time
 import os
 
 pyautogui.PAUSE = 1
+pyautogui.FAILSAFE = True
+
 GAME_TICK_INTERVAL = 0.603
 DOUBLE_CLICK_INTERVAL = 0.35
 DOUBLE_CLICK_INTERVAL_STD_DEV = 0.05
@@ -13,24 +15,34 @@ def main():
 
     numAlchs, topLeftBounds, bottomRightBounds = takeInput()
     numAlchsRemaining = numAlchs
-    try:
-        while numAlchsRemaining > 0:
-            if not isCursorOnAlchBounds(topLeftBounds, bottomRightBounds):
-                boundsWarningMsgBase = "\rOut of alching bounds!, moving mouse in "
-                countdown = 10
-                while countdown > 0:
-                    boundsWarningMsg = boundsWarningMsgBase + str(countdown) + "s"
-                    print(boundsWarningMsg, end='', flush=True)
-                    countdown -= 1
-                    time.sleep(1)
-                moveCursorBackInBounds(topLeftBounds, bottomRightBounds)
-                cls()
-            else:
-                numAlchsRemaining = castAlch(numAlchsRemaining, numAlchs)
+    Done = False
+    while not Done:
+        try:
+            alchingLoop(numAlchs, numAlchsRemaining, topLeftBounds, bottomRightBounds)
+            print("Done!, Alched about " + numAlchs + " items")
+        except KeyboardInterrupt:
+            print("Done")
+        except pyautogui.FailSafeException:  # move to top left corner
+            cls()
+            print("\r", end='', flush=True)
+            input("Execution Paused, Press ENTER to resume")
 
+def alchingLoop(numAlchs, numAlchsRemaining, topLeftBounds, bottomRightBounds):
+    while numAlchsRemaining > 0:
+        if not isCursorOnAlchBounds(topLeftBounds, bottomRightBounds):
+            boundsWarningMsgBase = "\rOut of alching bounds!, moving mouse in "
+            countdown = 10
+            while countdown > 0:
+                boundsWarningMsg = boundsWarningMsgBase + str(countdown) + "s"
+                print(boundsWarningMsg, end='', flush=True)
+                countdown -= 1
+                time.sleep(1)
+            moveCursorBackInBounds(topLeftBounds, bottomRightBounds)
+            print("\r", end='', flush=True)
+        else:
+            numAlchsRemaining = castAlch(numAlchsRemaining, numAlchs)
+    print("Done!, Alched about " + numAlchs + " items")
 
-    except KeyboardInterrupt:
-        print("Done")
 
 def isCursorOnAlchBounds(topLeftBounds, bottomRightBounds):
     currPos = pyautogui.position()
@@ -73,7 +85,7 @@ def moveCursorBackInBounds(topLeftBounds, bottomRightBounds):
     #generate coordinates between maxX, minX, maxY, minY and move there
     randX = random.randint(minX,maxX)
     randY = random.randint(minY,maxY)
-    pyautogui.moveTo(randX, randY, 0.3)
+    pyautogui.moveTo(randX, randY)
 
 def cls():
     os.system('cls' if os.name=='nt' else 'clear')

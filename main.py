@@ -11,14 +11,16 @@ GAME_TICK_INTERVAL = 0.603
 DOUBLE_CLICK_INTERVAL = 0.35
 DOUBLE_CLICK_INTERVAL_STD_DEV = 0.05
 
+#TODO: moving cursor back sometimesis in a spot that can select cast alch but not cast it on an item (find hitboxes for both)
+
 def main():
 
-    numAlchs, topLeftBounds, bottomRightBounds = takeInput()
-    numAlchsRemaining = numAlchs
-    Done = False
-    while not Done:
+    num_alchs, top_left_bounds, bottom_right_bounds = takeInput()
+    num_alchs_remaining = num_alchs
+    done = False
+    while not done:
         try:
-            Done = alchingLoop(numAlchs, numAlchsRemaining, topLeftBounds, bottomRightBounds)
+            done, num_alchs_remaining = alchingLoop(num_alchs, num_alchs_remaining, top_left_bounds, bottom_right_bounds)
         except KeyboardInterrupt:
             print("Done")
         except pyautogui.FailSafeException:  # move to top left corner
@@ -28,21 +30,41 @@ def main():
     exit(0)
 
 def alchingLoop(numAlchs, numAlchsRemaining, topLeftBounds, bottomRightBounds):
+    pauseAfterXAlchs = random.randint(750, 1500)
     while numAlchsRemaining > 0:
         if not isCursorOnAlchBounds(topLeftBounds, bottomRightBounds):
-            boundsWarningMsgBase = "\rOut of alching bounds!, moving mouse in "
+            boundsWarningMsgBase = "\rOut of alching bounds! Moving mouse in "
             countdown = 10
             while countdown > 0:
                 boundsWarningMsg = boundsWarningMsgBase + str(countdown) + "s"
                 print(boundsWarningMsg, end='', flush=True)
                 countdown -= 1
                 time.sleep(1)
+                if checkIfMouseInPauseRegion():
+                    raise pyautogui.FailSafeException
             moveCursorBackInBounds(topLeftBounds, bottomRightBounds)
+            cls()
             print("\r", end='', flush=True)
         else:
+            randomPauseIfNeeded(pauseAfterXAlchs)
             numAlchsRemaining = castAlch(numAlchsRemaining, numAlchs)
     print("Done!, Alched " + str(numAlchs) + " items")
-    return True
+    return True, numAlchsRemaining
+
+def randomPauseIfNeeded(pauseAfterXAlchs):
+    pauseAfterXAlchs -= 1
+    if pauseAfterXAlchs <= 0:
+        pause_time = numpy.random.normal(15, 3)
+        print("\r", end='', flush=True)
+        print("pausing for: " + str(pause_time), end='', flush=True)
+        time.sleep(pause_time)
+        pauseAfterXAlchs = random.randint(750, 1500)
+    return pauseAfterXAlchs
+
+def checkIfMouseInPauseRegion():
+    pyautogui.PAUSE = 0.2
+    x, y = pyautogui.position()
+    return x < 100 and y < 100
 
 def isCursorOnAlchBounds(topLeftBounds, bottomRightBounds):
     currPos = pyautogui.position()
